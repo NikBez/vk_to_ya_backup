@@ -1,6 +1,7 @@
 import sys
-from environs import Env
+
 import requests
+from environs import Env
 
 from assets import parse_image_response, save_images_meta
 
@@ -20,7 +21,7 @@ def main():
 
     uploader = YaUploader(ya_access_token)
 
-    print(f'Creating folder in Yandex Disk...')
+    print('Creating folder in Yandex Disk...')
     ya_user_folder_path = f'From Netology/id_{user_id}'
     uploader.create_folder(ya_user_folder_path)
 
@@ -35,28 +36,31 @@ class VK_Handler:
     """Connect to VK API by special user id"""
 
     def __init__(self, vk_access_token, user_id, version='5.131'):
-       self.params = {
+        self.params = {
            'user_id': user_id,
            'feed_type': 'photo',
            'access_token': vk_access_token,
            'v': version,
-       }
+        }
 
     def get_profile_photos(self, album_id='profile', extended=1):
-       """Method gets profile photos of special user"""
+        """Method gets profile photos of special user"""
 
-       url = 'https://api.vk.com/method/photos.get'
-       params = {
+        url = 'https://api.vk.com/method/photos.get'
+        params = {
            'album_id': album_id,
            'extended': extended,
-       }
-       response = requests.get(url, params={**self.params, **params})
-       response = response.json()
-       if not response.get('error'):
-           print('Get data from VK')
-           return response
-       print(f'Error code: {response["error"]["error_code"]}. {response["error"]["error_msg"]}')
-       sys.exit()
+        }
+        response = requests.get(url, params={**self.params, **params})
+        response = response.json()
+        if not response.get('error'):
+            print('Get data from VK')
+            return response
+        print(f'Error code: '
+              f'{response["error"]["error_code"]}. '
+              f'{response["error"]["error_msg"]}'
+              )
+        sys.exit()
 
 
 class YaUploader:
@@ -101,8 +105,3 @@ if __name__ == '__main__':
     vk_access_token = env('VK_ACCESS_TOKEN')
     ya_access_token = env('YANDEX_POLIGON_TOKEN')
     main()
-
-
-
-
-
