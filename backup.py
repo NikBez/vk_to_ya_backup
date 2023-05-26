@@ -1,3 +1,4 @@
+import argparse
 import sys
 
 import requests
@@ -6,17 +7,23 @@ from environs import Env
 from assets import parse_image_response, save_images_meta
 
 
-def main():
-    try:
-        user_id = int(input('Enter VK user ID: '))
-    except ValueError:
-        print('Invalid ID')
-        return
+MAX_COUNT = 5
+
+
+def main(args):
+    if not args.id:
+        try:
+            user_id = int(input('Enter VK user ID: '))
+        except ValueError:
+            print('Invalid ID')
+            return
+    else:
+        user_id = args.id
 
     vk_request = VK_Handler(vk_access_token, user_id)
-    vk_response = vk_request.get_profile_photos()
+    vk_response = vk_request.get_profile_photos(args)
 
-    data_to_upload, user_meta = parse_image_response(vk_response)
+    data_to_upload, user_meta = parse_image_response(vk_response, MAX_COUNT)
     save_images_meta(user_meta, user_id)
 
     uploader = YaUploader(ya_access_token)
@@ -43,13 +50,14 @@ class VK_Handler:
            'v': version,
         }
 
-    def get_profile_photos(self, album_id='profile', extended=1):
+    def get_profile_photos(self, args, extended=1):
         """Method gets profile photos of special user"""
 
         url = 'https://api.vk.com/method/photos.get'
         params = {
-           'album_id': album_id,
+           'album_id': args.album,
            'extended': extended,
+           'rev': args.rev,
         }
         response = requests.get(url, params={**self.params, **params})
         response = response.json()
@@ -102,7 +110,20 @@ class YaUploader:
 if __name__ == '__main__':
     env = Env()
     env.read_env()
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-i', '--id', help='VK id of user', type=int)
+    parser.add_argument('-a',
+                        '--album',
+                        default='profile',
+                        choices=['profile', 'wall', 'saved'],
+                        help='Albums to upload',
+                        type=str
+                        )
+    parser.add_argument('-r', '--rev', default=0, help='Sorting order', type=int)
+    args = parser.parse_args()
+
     vk_access_token = env('VK_ACCESS_TOKEN')
     ya_access_token = env('YANDEX_POLIGON_TOKEN')
     ya_folder_path = env('YANDEX_DISK_FOLDER_PATH')
-    main()
+    main(args)

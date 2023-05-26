@@ -21,7 +21,7 @@ def get_biggest_img(photo):
     return photo_url, sizes[max_index]
 
 
-def parse_image_response(vk_response, max_count=5):
+def parse_image_response(vk_response, max_count):
     """Function takes response from VK and maximum count of images need to save.
     Returns two lists:
         - 'user_meta' for save to json
