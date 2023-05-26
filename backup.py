@@ -1,9 +1,8 @@
 import sys
-import json
 from environs import Env
 import requests
 
-from assets import get_image_filename, get_biggest_img
+from assets import parse_image_response, save_images_meta
 
 
 def main():
@@ -16,28 +15,15 @@ def main():
     vk_request = VK_Handler(vk_access_token, user_id)
     vk_response = vk_request.get_profile_photos()
 
-    data_to_upload = []
-    user_meta = []
-    likes = []
-    for photo in vk_response['response']['items']:
-        filename = get_image_filename(photo, likes)
-        likes.append(photo['likes']['count'])
-        url, size = get_biggest_img(photo)
-        data_to_upload.append({
-            'filename': filename, 
-            'url': url,   
-        })
-        user_meta.append({
-            'filename': filename,
-            'size': size
-        })
-    with open(f'./meta/id_{user_id}.json', 'w') as file:
-        json.dump(user_meta, file, ensure_ascii=False, indent=2)
+    data_to_upload, user_meta = parse_image_response(vk_response, max_count=1)
+    save_images_meta(user_meta, user_id)
 
-    ya_user_folder_path = f'From Netology/id_{user_id}'
     uploader = YaUploader(ya_access_token)
+
     print(f'Creating folder in Yandex Disk...')
+    ya_user_folder_path = f'From Netology/id_{user_id}'
     uploader.create_folder(ya_user_folder_path)
+
     print('Uploading photos to Yandex disk...')
     for image in data_to_upload:
         file_path = f'{ya_user_folder_path}/{image["filename"]}'
@@ -46,15 +32,19 @@ def main():
 
 
 class VK_Handler:
-   def __init__(self, vk_access_token, user_id, version='5.131'):
+    """Connect to VK API by special user id"""
+
+    def __init__(self, vk_access_token, user_id, version='5.131'):
        self.params = {
            'user_id': user_id,
            'feed_type': 'photo',
            'access_token': vk_access_token,
-           'v': version
+           'v': version,
        }
 
-   def get_profile_photos(self, album_id='profile', extended=1):
+    def get_profile_photos(self, album_id='profile', extended=1):
+       """Method gets profile photos of special user"""
+
        url = 'https://api.vk.com/method/photos.get'
        params = {
            'album_id': album_id,
@@ -70,11 +60,13 @@ class VK_Handler:
 
 
 class YaUploader:
+    """Connect to YA API"""
+
     def __init__(self, token: str):
         self.token = token
 
     def upload(self, file_path: str, image_url: str, filename):
-        """Метод загружает файл на яндекс диск"""
+        """Method uploads photos to yandex disk"""
 
         url = 'https://cloud-api.yandex.net/v1/disk/resources/upload'
         params = {'url': image_url, 'path': file_path}
@@ -89,6 +81,8 @@ class YaUploader:
             print(f'Error: {response.status_code}')
 
     def create_folder(self, path):
+        """Method takes path and crates folder in yandex disk on it"""
+
         url = 'https://cloud-api.yandex.net/v1/disk/resources'
         headers = {
             'Authorization': f'OAuth {self.token}',
