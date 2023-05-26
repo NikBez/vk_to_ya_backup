@@ -22,7 +22,7 @@ def main():
     uploader = YaUploader(ya_access_token)
 
     print('Creating folder in Yandex Disk...')
-    ya_user_folder_path = f'From Netology/id_{user_id}'
+    ya_user_folder_path = f'{ya_folder_path}/id_{user_id}'
     uploader.create_folder(ya_user_folder_path)
 
     print('Uploading photos to Yandex disk...')
@@ -104,4 +104,5 @@ if __name__ == '__main__':
     env.read_env()
     vk_access_token = env('VK_ACCESS_TOKEN')
     ya_access_token = env('YANDEX_POLIGON_TOKEN')
+    ya_folder_path = env('YANDEX_DISK_FOLDER_PATH')
     main()
