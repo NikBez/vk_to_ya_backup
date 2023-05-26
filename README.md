@@ -22,6 +22,20 @@ All you need is run:
 ````
 python3 backup.py
 ````
+#### You can use command-line arguments to set request:  
+
+To set VK ID   
+````
+python3 backup.py -i --id <id>
+```` 
+To set album type  
+````
+python3 backup.py -a --album
+````  
+To set a sorting order
+````
+python3 backup.py -r --rev
+````   
 
 
 
