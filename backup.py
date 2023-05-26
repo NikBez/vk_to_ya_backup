@@ -16,7 +16,7 @@ def main():
     vk_request = VK_Handler(vk_access_token, user_id)
     vk_response = vk_request.get_profile_photos()
 
-    data_to_upload, user_meta = parse_image_response(vk_response, max_count=1)
+    data_to_upload, user_meta = parse_image_response(vk_response)
     save_images_meta(user_meta, user_id)
 
     uploader = YaUploader(ya_access_token)
