@@ -6,7 +6,6 @@ from environs import Env
 
 from assets import parse_image_response, save_images_meta
 
-
 MAX_COUNT = 5
 
 
@@ -44,10 +43,10 @@ class VK_Handler:
 
     def __init__(self, vk_access_token, user_id, version='5.131'):
         self.params = {
-           'user_id': user_id,
-           'feed_type': 'photo',
-           'access_token': vk_access_token,
-           'v': version,
+            'user_id': user_id,
+            'feed_type': 'photo',
+            'access_token': vk_access_token,
+            'v': version,
         }
 
     def get_profile_photos(self, args, extended=1):
@@ -55,9 +54,9 @@ class VK_Handler:
 
         url = 'https://api.vk.com/method/photos.get'
         params = {
-           'album_id': args.album,
-           'extended': extended,
-           'rev': args.rev,
+            'album_id': args.album,
+            'extended': extended,
+            'rev': args.rev,
         }
         response = requests.get(url, params={**self.params, **params})
         response = response.json()
@@ -100,11 +99,12 @@ class YaUploader:
             'Authorization': f'OAuth {self.token}',
         }
         response = requests.put(url, params={'path': path}, headers=headers)
-        response = response.json()
-        if response.get('message'):
-            print(response['message'], response['description'])
+        json_response = response.json()
+        if json_response.get('message'):
+            print(json_response['message'], json_response['description'])
         else:
             print(f'Folder {path} was created.')
+        return response
 
 
 if __name__ == '__main__':

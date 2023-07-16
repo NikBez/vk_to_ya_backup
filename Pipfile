@@ -8,6 +8,7 @@ requests = "*"
 environs = "*"
 isort = "*"
 argparse = "*"
+pytest = "*"
 
 [dev-packages]
 
